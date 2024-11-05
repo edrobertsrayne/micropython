@@ -29,7 +29,7 @@ class MPU6050:
 
         # Calibration offsets
         self._gyro_offset = {"x": 0, "y": 0, "z": 0}
-        self._accel_offset = {"x": 0, "y": 0, "z": -1}  # Z starts at -1g due to gravity
+        self._accel_offset = {"x": 0, "y": 0, "z": 0}
 
         # Wake up the MPU6050
         self._wake()
@@ -89,6 +89,10 @@ class MPU6050:
         """
         print("Calibrating MPU6050... Keep the sensor still!")
 
+        # Reset calibration offsets
+        self._gyro_offset = {"x": 0, "y": 0, "z": 0}
+        self._accel_offset = {"x": 0, "y": 0, "z": 0}
+
         # Initialize variables for averaging
         gyro_sums = {"x": 0, "y": 0, "z": 0}
         accel_sums = {"x": 0, "y": 0, "z": 0}
@@ -116,12 +120,10 @@ class MPU6050:
             "y": gyro_sums["y"] / samples,
             "z": gyro_sums["z"] / samples,
         }
-
-        # For accelerometer, we expect 0g for X and Y, and -1g for Z when flat
         self._accel_offset = {
             "x": accel_sums["x"] / samples,
             "y": accel_sums["y"] / samples,
-            "z": (accel_sums["z"] / samples) + 1,  # Add 1g to account for gravity
+            "z": accel_sums["z"] / samples,
         }
 
         return {"gyro_offset": self._gyro_offset, "accel_offset": self._accel_offset}
