@@ -114,7 +114,7 @@ class MPU6050:
 
             sleep(delay_ms / 1000)
 
-        # Calculate average offsets
+        # Calculate average offsets and allow for gravitational acceleration in z direction
         self._gyro_offset = {
             "x": gyro_sums["x"] / samples,
             "y": gyro_sums["y"] / samples,
@@ -123,7 +123,7 @@ class MPU6050:
         self._accel_offset = {
             "x": accel_sums["x"] / samples,
             "y": accel_sums["y"] / samples,
-            "z": accel_sums["z"] / samples,
+            "z": (accel_sums["z"] / samples) - 1,  # acceleration due to gravity
         }
 
         return {"gyro_offset": self._gyro_offset, "accel_offset": self._accel_offset}
