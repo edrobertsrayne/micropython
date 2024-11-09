@@ -1,4 +1,4 @@
-from time import sleep
+from utime import sleep_ms
 
 
 class MPU6050:
@@ -112,7 +112,7 @@ class MPU6050:
             accel_sums["y"] += ay
             accel_sums["z"] += az
 
-            sleep(delay_ms / 1000)
+            sleep_ms(delay_ms)
 
         # Calculate average offsets and allow for gravitational acceleration in z direction
         self._gyro_offset = {
