@@ -1,5 +1,5 @@
 from machine import PWM, Pin
-from time import sleep_ms
+from utime import sleep_ms
 
 
 class Servo:

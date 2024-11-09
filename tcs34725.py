@@ -26,7 +26,7 @@
     Original code from https://gitlab.com/robhamerling/micropython-tcs34725
 """
 
-from time import sleep_ms
+from utime import sleep_ms
 from micropython import const
 from struct import unpack
 
