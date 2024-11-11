@@ -2,9 +2,11 @@
 TB6612FNG Single Motor Control Class for MicroPython
 """
 
+from machine import Pin
+
 
 class Motor:
-    def __init__(self, in1, in2, pwm, stby, offset=0):
+    def __init__(self, in1, in2, pwm, stby=None, offset=0):
         """
         Initialize a single motor
 
@@ -15,20 +17,22 @@ class Motor:
             stby (Pin): Standby pin (can be shared between multiple motors)
             offset (float): Speed offset for motor calibration (0-1)
         """
-        self.in1 = in1
-        self.in2 = in2
-        self.pwm = pwm
-        self.stby = stby
+        self.in1 = Pin(in1, Pin.OUT)
+        self.in2 = Pin(in2, Pin.OUT)
+        self.pwm = Pin(pwm, Pin.OUT)
+        self.stby = Pin(stby, Pin.OUT) if stby else None
         self.offset = offset
-
-        # Initialize pins as outputs
-        self.in1.init(self.in1.OUT)
-        self.in2.init(self.in2.OUT)
-        self.pwm.init(self.pwm.OUT)
-        self.stby.init(self.stby.OUT)
 
         # Ensure motor starts in stopped state
         self.stop()
+
+    @staticmethod
+    def _constain(value, min_value, max_value):
+        if value < min_value:
+            return min_value
+        if value > max_value:
+            return max_value
+        return value
 
     def forward(self, speed):
         """
@@ -37,10 +41,11 @@ class Motor:
         Args:
             speed (float): Motor speed from 0 to 1
         """
+        speed = self._constain(speed, 0, 1023)
         self.in1.value(1)
         self.in2.value(0)
         self.pwm.value(int(speed * (1 - self.offset)))
-        self.stby.value(1)
+        self.stby.value(1) if self.stby else None
 
     def reverse(self, speed):
         """
@@ -49,17 +54,18 @@ class Motor:
         Args:
             speed (float): Motor speed from 0 to 1
         """
+        speed = self._constain(speed, 0, 1023)
         self.in1.value(0)
         self.in2.value(1)
         self.pwm.value(int(speed * (1 - self.offset)))
-        self.stby.value(1)
+        self.stby.value(1) if self.stby else None
 
     def stop(self):
         """Stop the motor"""
         self.in1.value(0)
         self.in2.value(0)
         self.pwm.value(0)
-        self.stby.value(0)
+        self.stby.value(0) if self.stby else None
 
     def brake(self):
         """
@@ -69,4 +75,4 @@ class Motor:
         self.in1.value(1)
         self.in2.value(1)
         self.pwm.value(0)
-        self.stby.value(1)
+        self.stby.value(1) if self.stby else None
